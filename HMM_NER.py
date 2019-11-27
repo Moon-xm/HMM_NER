@@ -89,16 +89,15 @@ class HMM_model:
         T = len(Obs)
         delta = np.zeros((T, self.n_tag))  # shape: 观测文本数量*7
         psi = np.zeros((T, self.n_tag))  # shape: 观测文本数量*7
-        # for i in range(self.n_tag):  # 初始化
         delta[0] = self.pi[:] + self.B[:, ord(Obs[0])]  # 初始化
         for i in range(1, T):
-            temp = delta[i - 1].reshape(self.n_tag, -1) + self.A
+            temp = delta[i - 1].reshape(self.n_tag, -1) + self.A  # 这里运用到了矩阵的广播算法
             delta[i] = np.max(temp, axis=0)
             delta[i] = delta[i, :] + self.B[:, ord(Obs[i])]
             psi[i] = np.argmax(temp, axis=0)
         path = np.zeros(T)
         path[T - 1] = np.argmax(delta[T - 1])
-        for i in range(T - 2, -1, -1):
+        for i in range(T - 2, -1, -1):  # 回溯
             path[i] = int(psi[i + 1][int(path[i + 1])])
         return path
 
